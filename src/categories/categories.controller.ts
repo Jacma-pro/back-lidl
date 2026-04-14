@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 
@@ -21,5 +21,12 @@ export class CategoriesController {
   @ApiResponse({ status: 404, description: 'Catégorie introuvable' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.categoriesService.findOne(id);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Créer une catégorie' })
+  @ApiResponse({ status: 201, description: 'Catégorie créée' })
+  create(@Body() body: { name: string; description?: string | null; restrictions?: object | null }) {
+    return this.categoriesService.create(body);
   }
 }

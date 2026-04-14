@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 
@@ -21,5 +21,25 @@ export class ProductsController {
   @ApiResponse({ status: 404, description: 'Produit introuvable' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Créer un produit' })
+  @ApiResponse({ status: 201, description: 'Produit créé' })
+  create(
+    @Body()
+    body: {
+      category_id: number;
+      name: string;
+      description?: string | null;
+      price: number;
+      weight?: number | null;
+      image_url?: string | null;
+      barcode?: string | null;
+      nutriscore?: string | null;
+      is_active?: boolean;
+    },
+  ) {
+    return this.productsService.create(body);
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { StoresService } from './stores.service';
 
@@ -21,5 +21,31 @@ export class StoresController {
   @ApiResponse({ status: 404, description: 'Magasin introuvable' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.storesService.findOne(id);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Créer un magasin' })
+  @ApiResponse({ status: 201, description: 'Magasin créé' })
+  create(
+    @Body()
+    body: {
+      name: string;
+      email: string;
+      phone: string;
+      address: string;
+      zip_code: string;
+      city: string;
+      country: string;
+      latitude: number;
+      longitude: number;
+      opening_hours?: string | null;
+      slot_duration_minutes: number;
+      max_orders_per_slot: number;
+      avg_preparation_time_minutes: number;
+      drive_available?: boolean;
+      click_collect_available?: boolean;
+    },
+  ) {
+    return this.storesService.create(body);
   }
 }

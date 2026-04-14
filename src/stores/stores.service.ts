@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class StoresService {
-  private readonly mockStores = [
+  private readonly mockStores: any[] = [
     {
       id: 1,
       name: 'Lidl Marseille Saint-Barnabé',
@@ -20,6 +20,8 @@ export class StoresService {
       avg_preparation_time_minutes: 30,
       drive_available: true,
       click_collect_available: true,
+      created_at: new Date(),
+      updated_at: new Date(),
     },
     {
       id: 2,
@@ -38,6 +40,8 @@ export class StoresService {
       avg_preparation_time_minutes: 25,
       drive_available: true,
       click_collect_available: false,
+      created_at: new Date(),
+      updated_at: new Date(),
     },
   ];
 
@@ -49,5 +53,52 @@ export class StoresService {
     const store = this.mockStores.find(s => s.id === id);
     if (!store) throw new NotFoundException(`Magasin #${id} introuvable`);
     return store;
+  }
+
+  create(input: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    zip_code: string;
+    city: string;
+    country: string;
+    latitude: number;
+    longitude: number;
+    opening_hours?: string | null;
+    slot_duration_minutes: number;
+    max_orders_per_slot: number;
+    avg_preparation_time_minutes: number;
+    drive_available?: boolean;
+    click_collect_available?: boolean;
+  }) {
+    if (!input.name?.trim()) {
+      throw new BadRequestException('Le nom du magasin est obligatoire');
+    }
+
+    const now = new Date();
+    const created = {
+      id: this.mockStores.length + 1,
+      name: input.name,
+      email: input.email,
+      phone: input.phone,
+      address: input.address,
+      zip_code: input.zip_code,
+      city: input.city,
+      country: input.country,
+      latitude: input.latitude,
+      longitude: input.longitude,
+      opening_hours: input.opening_hours ?? null,
+      slot_duration_minutes: input.slot_duration_minutes,
+      max_orders_per_slot: input.max_orders_per_slot,
+      avg_preparation_time_minutes: input.avg_preparation_time_minutes,
+      drive_available: input.drive_available ?? false,
+      click_collect_available: input.click_collect_available ?? false,
+      created_at: now,
+      updated_at: now,
+    };
+
+    this.mockStores.push(created);
+    return created;
   }
 }
