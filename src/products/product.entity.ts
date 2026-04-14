@@ -12,6 +12,9 @@ export class Product {
   id!: number;
 
   @Column()
+  category_id!: number;
+
+  @Column()
   name!: string;
 
   @Column({ nullable: true })
@@ -22,6 +25,15 @@ export class Product {
 
   @Column('decimal', { nullable: true })
   weight!: number;
+
+  @Column('decimal', { nullable: true })
+  length!: number;
+
+  @Column('decimal', { nullable: true })
+  width!: number;
+
+  @Column('decimal', { nullable: true })
+  height!: number;
 
   @Column({ nullable: true })
   image_url!: string;
