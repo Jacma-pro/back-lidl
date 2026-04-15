@@ -12,7 +12,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Connexion (client, préparateur ou manager)' })
   @ApiBody({
     schema: {
-      example: { email: 'emma.durand@example.com', password: 'client123' },
+      example: { email: 'dorianjacolin@example.com', password: 'dodolePluBo' },
     },
   })
   @ApiResponse({ status: 200, description: 'Connexion réussie — retourne un access_token JWT' })
@@ -26,12 +26,12 @@ export class AuthController {
   @ApiBody({
     schema: {
       example: {
-        last_name: 'Dupont',
-        first_name: 'Marie',
-        email: 'marie.dupont@example.com',
-        password: 'monMotDePasse',
-        phone: '0612345678',
-        address: '3 rue des Lilas, Lyon',
+        last_name: 'Jacolin',
+        first_name: 'Dorian',
+        email: 'dorianjacolin@example.com',
+        password: 'dodolePluBo',
+        phone: '0624179309',
+        address: '20 rue des templiers 38000 Grenoble',
       },
     },
   })
