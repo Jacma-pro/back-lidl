@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('products')
+@Entity('product')
 export class Product {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -26,7 +26,7 @@ export class Product {
   @Column('decimal', { nullable: true })
   weight!: number;
 
-  @Column('decimal', { nullable: true })
+  @Column('decimal', { name: 'lenght', nullable: true })
   length!: number;
 
   @Column('decimal', { nullable: true })

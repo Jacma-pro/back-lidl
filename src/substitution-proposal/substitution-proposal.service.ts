@@ -1,46 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SubstitutionProposal } from './substitution-proposal.entity/substitution-proposal.entity';
 
 @Injectable()
 export class SubstitutionProposalService {
-	private readonly proposals: any[] = [
-		{
-			id: 1,
-			order_item_id: 1,
-			original_product_id: 1,
-			proposed_product_id: 2,
-			status: 'PENDING' as const,
-			created_at: new Date(),
-		},
-	];
+  constructor(
+    @InjectRepository(SubstitutionProposal)
+    private readonly repo: Repository<SubstitutionProposal>,
+  ) {}
 
-	findAll() {
-		return this.proposals;
-	}
+  findAll() {
+    return this.repo.find();
+  }
 
-	findOne(id: number) {
-		const proposal = this.proposals.find((item) => item.id === id);
-		if (!proposal) {
-			throw new NotFoundException(`SubstitutionProposal #${id} introuvable`);
-		}
-		return proposal;
-	}
+  async findOne(id: number) {
+    const proposal = await this.repo.findOne({ where: { id } });
+    if (!proposal) throw new NotFoundException(`SubstitutionProposal #${id} introuvable`);
+    return proposal;
+  }
 
-	create(input: {
-		order_item_id: number;
-		original_product_id: number;
-		proposed_product_id: number;
-		status?: 'PENDING' | 'ACCEPTED' | 'REFUSED';
-	}) {
-		const created = {
-			id: this.proposals.length + 1,
-			order_item_id: input.order_item_id,
-			original_product_id: input.original_product_id,
-			proposed_product_id: input.proposed_product_id,
-			status: input.status ?? 'PENDING',
-			created_at: new Date(),
-		};
-
-		this.proposals.push(created);
-		return created;
-	}
+  async create(input: {
+    order_item_id: number;
+    original_product_id: number;
+    proposed_product_id: number;
+    status?: 'PENDING' | 'ACCEPTED' | 'REFUSED';
+  }) {
+    const entity = this.repo.create(input as any);
+    return this.repo.save(entity as any);
+  }
 }

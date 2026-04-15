@@ -1,37 +1,30 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CartItem } from './cart-item.entity/cart-item.entity';
 
 @Injectable()
 export class CartItemService {
-	private readonly items = [
-		{ id: 1, cart_id: 1, product_id: 1, quantity: 2, unit_price: 1.99 },
-	];
+  constructor(
+    @InjectRepository(CartItem)
+    private readonly repo: Repository<CartItem>,
+  ) {}
 
-	findAll() {
-		return this.items;
-	}
+  findAll() {
+    return this.repo.find();
+  }
 
-	findOne(id: number) {
-		const item = this.items.find((entry) => entry.id === id);
-		if (!item) {
-			throw new NotFoundException(`CartItem #${id} introuvable`);
-		}
-		return item;
-	}
+  async findOne(id: number) {
+    const item = await this.repo.findOne({ where: { id } });
+    if (!item) throw new NotFoundException(`CartItem #${id} introuvable`);
+    return item;
+  }
 
-	create(input: { cart_id: number; product_id: number; quantity: number; unit_price: number }) {
-		if (input.quantity <= 0 || input.unit_price < 0) {
-			throw new BadRequestException('Quantité ou prix invalide');
-		}
-
-		const created = {
-			id: this.items.length + 1,
-			cart_id: input.cart_id,
-			product_id: input.product_id,
-			quantity: input.quantity,
-			unit_price: input.unit_price,
-		};
-
-		this.items.push(created);
-		return created;
-	}
+  async create(input: { cart_id: number; product_id: number; quantity: number; unit_price: number }) {
+    if (input.quantity <= 0 || input.unit_price < 0) {
+      throw new BadRequestException('Quantité ou prix invalide');
+    }
+    const entity = this.repo.create(input as any);
+    return this.repo.save(entity as any);
+  }
 }

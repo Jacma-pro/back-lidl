@@ -38,7 +38,7 @@ import { AuthModule } from './auth/auth.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // OK en dev — désactiver en prod
+        synchronize: false,
         ssl: { rejectUnauthorized: false }, // requis pour Supabase
         extra: { family: 4 }, // force IPv4 pour éviter les timeouts
       }),

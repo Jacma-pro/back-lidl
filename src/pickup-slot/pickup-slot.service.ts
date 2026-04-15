@@ -1,57 +1,42 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PickupSlot } from './pickup-slot.entity/pickup-slot.entity';
 
 @Injectable()
 export class PickupSlotService {
-	private readonly slots = [
-		{
-			id: 1,
-			store_id: 1,
-			date: '2026-04-15',
-			start_time: '09:00',
-			end_time: '10:00',
-			max_orders: 20,
-			current_orders: 7,
-			is_available: true,
-		},
-	];
+  constructor(
+    @InjectRepository(PickupSlot)
+    private readonly repo: Repository<PickupSlot>,
+  ) {}
 
-	findAll() {
-		return this.slots;
-	}
+  findAll() {
+    return this.repo.find();
+  }
 
-	findOne(id: number) {
-		const slot = this.slots.find((item) => item.id === id);
-		if (!slot) {
-			throw new NotFoundException(`PickupSlot #${id} introuvable`);
-		}
-		return slot;
-	}
+  async findOne(id: number) {
+    const slot = await this.repo.findOne({ where: { id } });
+    if (!slot) throw new NotFoundException(`PickupSlot #${id} introuvable`);
+    return slot;
+  }
 
-	create(input: {
-		store_id: number;
-		date: string;
-		start_time: string;
-		end_time: string;
-		max_orders: number;
-		current_orders?: number;
-	}) {
-		const currentOrders = input.current_orders ?? 0;
-		if (currentOrders > input.max_orders) {
-			throw new BadRequestException('current_orders ne peut pas dépasser max_orders');
-		}
-
-		const created = {
-			id: this.slots.length + 1,
-			store_id: input.store_id,
-			date: input.date,
-			start_time: input.start_time,
-			end_time: input.end_time,
-			max_orders: input.max_orders,
-			current_orders: currentOrders,
-			is_available: currentOrders < input.max_orders,
-		};
-
-		this.slots.push(created);
-		return created;
-	}
+  async create(input: {
+    store_id: number;
+    date: string;
+    start_time: string;
+    end_time: string;
+    max_orders: number;
+    current_orders?: number;
+  }) {
+    const currentOrders = input.current_orders ?? 0;
+    if (currentOrders > input.max_orders) {
+      throw new BadRequestException('current_orders ne peut pas dépasser max_orders');
+    }
+    const entity = this.repo.create({
+      ...input,
+      current_orders: currentOrders,
+      is_available: currentOrders < input.max_orders,
+    } as any);
+    return this.repo.save(entity as any);
+  }
 }

@@ -1,42 +1,30 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Permission, Role } from './permission.entity/permission.entity';
 
 @Injectable()
 export class PermissionService {
-	private readonly roles = ['CLIENT', 'OPERATOR', 'MANAGER', 'ADMIN'] as const;
+  constructor(
+    @InjectRepository(Permission)
+    private readonly repo: Repository<Permission>,
+  ) {}
 
-	private readonly permissions = [
-		{ id: 1, role: 'CLIENT', created_at: new Date(), updated_at: new Date() },
-		{ id: 2, role: 'OPERATOR', created_at: new Date(), updated_at: new Date() },
-		{ id: 3, role: 'MANAGER', created_at: new Date(), updated_at: new Date() },
-		{ id: 4, role: 'ADMIN', created_at: new Date(), updated_at: new Date() },
-	];
+  findAll() {
+    return this.repo.find();
+  }
 
-	findAll() {
-		return this.permissions;
-	}
+  async findOne(id: number) {
+    const permission = await this.repo.findOne({ where: { id } });
+    if (!permission) throw new NotFoundException(`Permission #${id} introuvable`);
+    return permission;
+  }
 
-	findOne(id: number) {
-		const permission = this.permissions.find((item) => item.id === id);
-		if (!permission) {
-			throw new NotFoundException(`Permission #${id} introuvable`);
-		}
-		return permission;
-	}
-
-	create(input: { role: 'CLIENT' | 'OPERATOR' | 'MANAGER' | 'ADMIN' }) {
-		if (!this.roles.includes(input.role)) {
-			throw new BadRequestException('Le role est invalide');
-		}
-
-		const now = new Date();
-		const created = {
-			id: this.permissions.length + 1,
-			role: input.role,
-			created_at: now,
-			updated_at: now,
-		};
-
-		this.permissions.push(created);
-		return created;
-	}
+  async create(input: { role: 'CLIENT' | 'OPERATOR' | 'MANAGER' | 'ADMIN' }) {
+    if (!Object.values(Role).includes(input.role as Role)) {
+      throw new BadRequestException('Le role est invalide');
+    }
+    const entity = this.repo.create({ role: input.role as Role });
+    return this.repo.save(entity);
+  }
 }

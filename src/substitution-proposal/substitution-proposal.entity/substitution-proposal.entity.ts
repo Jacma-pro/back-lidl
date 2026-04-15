@@ -6,7 +6,7 @@ export enum SubstitutionStatus {
   REFUSED = 'REFUSED',
 }
 
-@Entity('substitution_proposals')
+@Entity('substitution_proposal')
 export class SubstitutionProposal {
   @PrimaryGeneratedColumn()
   id!: number;

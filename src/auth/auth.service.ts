@@ -16,7 +16,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     // 1. Cherche dans les clients
-    const client = this.clientService.findByEmail(email);
+    const client = await this.clientService.findByEmail(email);
     if (client) {
       const valid = await bcrypt.compare(password, client.password);
       if (!valid) throw new UnauthorizedException('Identifiants invalides');
@@ -24,7 +24,7 @@ export class AuthService {
     }
 
     // 2. Cherche dans les préparateurs
-    const preparer = this.preparerService.findByWorkEmail(email);
+    const preparer = await this.preparerService.findByWorkEmail(email);
     if (preparer) {
       const valid = await bcrypt.compare(password, preparer.password);
       if (!valid) throw new UnauthorizedException('Identifiants invalides');
@@ -32,7 +32,7 @@ export class AuthService {
     }
 
     // 3. Cherche dans les managers
-    const manager = this.managerService.findByWorkEmail(email);
+    const manager = await this.managerService.findByWorkEmail(email);
     if (manager) {
       const valid = await bcrypt.compare(password, manager.password);
       if (!valid) throw new UnauthorizedException('Identifiants invalides');
@@ -50,14 +50,14 @@ export class AuthService {
     phone: string;
     address: string;
   }) {
-    const existing = this.clientService.findByEmail(input.email);
+    const existing = await this.clientService.findByEmail(input.email);
     if (existing) {
       throw new ConflictException('Un compte existe déjà avec cet email');
     }
 
     const hashed = await bcrypt.hash(input.password, 10);
 
-    const client = this.clientService.create({
+    const client = await this.clientService.create({
       permission_id: 1, // CLIENT
       last_name: input.last_name,
       first_name: input.first_name,

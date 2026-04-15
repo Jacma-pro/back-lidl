@@ -1,36 +1,30 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Category } from './category.entity';
 
 @Injectable()
 export class CategoriesService {
-  private readonly mockCategories: any[] = [
-    { id: 1, name: 'Fruits & Légumes', description: 'Produits frais', restrictions: null },
-    { id: 2, name: 'Produits laitiers', description: 'Lait, fromages, yaourts', restrictions: { lactose: true } },
-    { id: 3, name: 'Surgelés', description: 'Produits congelés', restrictions: null },
-  ];
+  constructor(
+    @InjectRepository(Category)
+    private readonly repo: Repository<Category>,
+  ) {}
 
   findAll() {
-    return this.mockCategories;
+    return this.repo.find();
   }
 
-  findOne(id: number) {
-    const category = this.mockCategories.find(c => c.id === id);
+  async findOne(id: number) {
+    const category = await this.repo.findOne({ where: { id } });
     if (!category) throw new NotFoundException(`Catégorie #${id} introuvable`);
     return category;
   }
 
-  create(input: { name: string; description?: string | null; restrictions?: object | null }) {
+  async create(input: { name: string; description?: string | null; restrictions?: object | null }) {
     if (!input.name?.trim()) {
       throw new BadRequestException('Le nom de la catégorie est obligatoire');
     }
-
-    const created = {
-      id: this.mockCategories.length + 1,
-      name: input.name,
-      description: input.description ?? null,
-      restrictions: input.restrictions ?? null,
-    };
-
-    this.mockCategories.push(created);
-    return created;
+    const entity = this.repo.create(input as any);
+    return this.repo.save(entity as any);
   }
 }

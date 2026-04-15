@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity('managers')
+@Entity('manager')
 export class Manager {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -14,7 +14,7 @@ export class Manager {
   @Column()
   first_name!: string;
 
-  @Column()
+  @Column({ default: '' })
   last_name_initials!: string;
 
   @Column({ unique: true })

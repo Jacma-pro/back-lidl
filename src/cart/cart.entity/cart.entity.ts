@@ -6,7 +6,7 @@ export enum CartStatus {
   CONVERTED = 'CONVERTED',
 }
 
-@Entity('carts')
+@Entity('cart')
 export class Cart {
   @PrimaryGeneratedColumn()
   id!: number;

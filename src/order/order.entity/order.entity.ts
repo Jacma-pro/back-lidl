@@ -8,7 +8,7 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
-@Entity('orders')
+@Entity('order')
 export class Order {
   @PrimaryGeneratedColumn()
   id!: number;

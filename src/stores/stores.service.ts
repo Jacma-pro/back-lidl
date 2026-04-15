@@ -1,61 +1,26 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Store } from './store.entity';
 
 @Injectable()
 export class StoresService {
-  private readonly mockStores: any[] = [
-    {
-      id: 1,
-      name: 'Lidl Marseille Saint-Barnabé',
-      email: 'marseille-saintbarnabe@lidl.fr',
-      phone: '0491000001',
-      address: '12 Rue de Saint-Barnabé',
-      zip_code: '13012',
-      city: 'Marseille',
-      country: 'France',
-      latitude: 43.2965,
-      longitude: 5.3698,
-      opening_hours: 'Lun-Sam 8h-21h',
-      slot_duration_minutes: 60,
-      max_orders_per_slot: 20,
-      avg_preparation_time_minutes: 30,
-      drive_available: true,
-      click_collect_available: true,
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      id: 2,
-      name: 'Lidl Marseille La Valentine',
-      email: 'marseille-lavalentine@lidl.fr',
-      phone: '0491000002',
-      address: '45 Avenue de la Valentine',
-      zip_code: '13011',
-      city: 'Marseille',
-      country: 'France',
-      latitude: 43.2897,
-      longitude: 5.4231,
-      opening_hours: 'Lun-Sam 8h-21h',
-      slot_duration_minutes: 60,
-      max_orders_per_slot: 15,
-      avg_preparation_time_minutes: 25,
-      drive_available: true,
-      click_collect_available: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-  ];
+  constructor(
+    @InjectRepository(Store)
+    private readonly repo: Repository<Store>,
+  ) {}
 
   findAll() {
-    return this.mockStores;
+    return this.repo.find();
   }
 
-  findOne(id: number) {
-    const store = this.mockStores.find(s => s.id === id);
+  async findOne(id: number) {
+    const store = await this.repo.findOne({ where: { id } });
     if (!store) throw new NotFoundException(`Magasin #${id} introuvable`);
     return store;
   }
 
-  create(input: {
+  async create(input: {
     name: string;
     email: string;
     phone: string;
@@ -75,30 +40,7 @@ export class StoresService {
     if (!input.name?.trim()) {
       throw new BadRequestException('Le nom du magasin est obligatoire');
     }
-
-    const now = new Date();
-    const created = {
-      id: this.mockStores.length + 1,
-      name: input.name,
-      email: input.email,
-      phone: input.phone,
-      address: input.address,
-      zip_code: input.zip_code,
-      city: input.city,
-      country: input.country,
-      latitude: input.latitude,
-      longitude: input.longitude,
-      opening_hours: input.opening_hours ?? null,
-      slot_duration_minutes: input.slot_duration_minutes,
-      max_orders_per_slot: input.max_orders_per_slot,
-      avg_preparation_time_minutes: input.avg_preparation_time_minutes,
-      drive_available: input.drive_available ?? false,
-      click_collect_available: input.click_collect_available ?? false,
-      created_at: now,
-      updated_at: now,
-    };
-
-    this.mockStores.push(created);
-    return created;
+    const entity = this.repo.create(input as any);
+    return this.repo.save(entity as any);
   }
 }

@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity('preparers')
+@Entity('preparer')
 export class Preparer {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -14,7 +14,7 @@ export class Preparer {
   @Column()
   first_name!: string;
 
-  @Column()
+  @Column({ default: '' })
   last_name_initials!: string;
 
   @Column({ unique: true })
