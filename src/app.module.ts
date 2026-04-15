@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductsModule } from './products/products.module';
@@ -23,11 +24,24 @@ import { ScheduleModule } from './schedule/schedule.module';
 import { PerformanceModule } from './performance/performance.module';
 import { NotificationModule } from './notification/notification.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('DATABASE_URL'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // OK en dev — désactiver en prod
+        ssl: { rejectUnauthorized: false }, // requis pour Supabase
+        extra: { family: 4 }, // force IPv4 pour éviter les timeouts
+      }),
     }),
     ProductsModule,
     CategoriesModule,
@@ -50,6 +64,7 @@ import { AuditLogModule } from './audit-log/audit-log.module';
     PerformanceModule,
     NotificationModule,
     AuditLogModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
