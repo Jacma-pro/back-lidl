@@ -4,6 +4,7 @@ import { PreparerService } from './preparer.service';
 
 @Module({
   controllers: [PreparerController],
-  providers: [PreparerService]
+  providers: [PreparerService],
+  exports: [PreparerService],
 })
 export class PreparerModule {}

@@ -10,7 +10,7 @@ export class ManagerService {
 			first_name: 'Julie',
 			last_name_initials: 'R.',
 			work_email: 'julie.r@lidl.fr',
-			password: 'hashed-password',
+			password: '$2b$10$1ulavp6pnlXoig/cneCJT.lrJPSqTzkEDc1ueyQMzYLzZzSxSrGES', // manager123
 			work_phone: '0491000201',
 			created_at: new Date(),
 			updated_at: new Date(),
@@ -27,6 +27,10 @@ export class ManagerService {
 			throw new NotFoundException(`Manager #${id} introuvable`);
 		}
 		return manager;
+	}
+
+	findByWorkEmail(email: string) {
+		return this.managers.find((item) => item.work_email === email) ?? null;
 	}
 
 	create(input: {

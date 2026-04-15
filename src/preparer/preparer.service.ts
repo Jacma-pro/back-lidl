@@ -10,7 +10,7 @@ export class PreparerService {
 			first_name: 'Nina',
 			last_name_initials: 'M.',
 			work_email: 'nina.m@lidl.fr',
-			password: 'hashed-password',
+			password: '$2b$10$l2PECj3R.ibMbCqtxA0JMeXa.tIzgRjU.0zWVZ4AuH7hRbh2XtH8q', // preparer123
 			work_phone: '0491000101',
 			created_at: new Date(),
 			updated_at: new Date(),
@@ -27,6 +27,10 @@ export class PreparerService {
 			throw new NotFoundException(`Preparer #${id} introuvable`);
 		}
 		return preparer;
+	}
+
+	findByWorkEmail(email: string) {
+		return this.preparers.find((item) => item.work_email === email) ?? null;
 	}
 
 	create(input: {

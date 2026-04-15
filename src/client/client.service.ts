@@ -9,7 +9,7 @@ export class ClientService {
 			last_name: 'Durand',
 			first_name: 'Emma',
 			email: 'emma.durand@example.com',
-			password: 'hashed-password',
+			password: '$2b$10$m7kvhPRw1fxCUh.024wZVupwM4L4nxrLBpkjLTpTJ7J.92qAXfpA2', // client123
 			phone: '0612345678',
 			address: '12 rue de la Republique, Marseille',
 			preferred_store_id: 1,
@@ -28,6 +28,10 @@ export class ClientService {
 			throw new NotFoundException(`Client #${id} introuvable`);
 		}
 		return client;
+	}
+
+	findByEmail(email: string) {
+		return this.clients.find((item) => item.email === email) ?? null;
 	}
 
 	create(input: {
