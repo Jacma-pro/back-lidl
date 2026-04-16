@@ -7,7 +7,7 @@ export enum ActorRole {
   ADMIN = 'ADMIN',
 }
 
-@Entity('audit_logs')
+@Entity('audit_log')
 export class AuditLog {
   @PrimaryGeneratedColumn()
   id!: number;

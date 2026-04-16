@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { StoresService } from './stores.service';
 
-@ApiTags('Stores')
-@Controller('stores')
+@ApiTags('Store')
+@Controller('store')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 

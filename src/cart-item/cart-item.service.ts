@@ -1,37 +1,50 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CartItem } from './cart-item.entity/cart-item.entity';
 
 @Injectable()
 export class CartItemService {
-	private readonly items = [
-		{ id: 1, cart_id: 1, product_id: 1, quantity: 2, unit_price: 1.99 },
-	];
+  constructor(
+    @InjectRepository(CartItem)
+    private readonly repo: Repository<CartItem>,
+  ) {}
 
-	findAll() {
-		return this.items;
-	}
+  findAll() {
+    return this.repo.find();
+  }
 
-	findOne(id: number) {
-		const item = this.items.find((entry) => entry.id === id);
-		if (!item) {
-			throw new NotFoundException(`CartItem #${id} introuvable`);
-		}
-		return item;
-	}
+  async findOne(id: number) {
+    const item = await this.repo.findOne({ where: { id } });
+    if (!item) throw new NotFoundException(`CartItem #${id} introuvable`);
+    return item;
+  }
 
-	create(input: { cart_id: number; product_id: number; quantity: number; unit_price: number }) {
-		if (input.quantity <= 0 || input.unit_price < 0) {
-			throw new BadRequestException('Quantité ou prix invalide');
-		}
+  async create(input: { cart_id: number; product_id: number; quantity: number; unit_price: number }) {
+    if (!input || input.quantity === undefined || input.unit_price === undefined) {
+      throw new BadRequestException('Champs obligatoires manquants : cart_id, product_id, quantity, unit_price');
+    }
+    if (input.quantity <= 0 || input.unit_price < 0) {
+      throw new BadRequestException('Quantité ou prix invalide');
+    }
+    const entity = this.repo.create(input as any);
+    return this.repo.save(entity as any);
+  }
 
-		const created = {
-			id: this.items.length + 1,
-			cart_id: input.cart_id,
-			product_id: input.product_id,
-			quantity: input.quantity,
-			unit_price: input.unit_price,
-		};
+  async updateQuantity(id: number, quantity: number) {
+    if (quantity < 0) throw new BadRequestException('La quantité ne peut pas être négative');
+    const item = await this.findOne(id);
+    if (quantity === 0) {
+      await this.repo.remove(item);
+      return { deleted: true, id };
+    }
+    item.quantity = quantity;
+    return this.repo.save(item);
+  }
 
-		this.items.push(created);
-		return created;
-	}
+  async remove(id: number) {
+    const item = await this.findOne(id);
+    await this.repo.remove(item);
+    return { deleted: true, id };
+  }
 }

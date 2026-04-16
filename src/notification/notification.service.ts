@@ -1,52 +1,34 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Notification } from './notification.entity/notification.entity';
 
 @Injectable()
 export class NotificationService {
-	private readonly notifications: any[] = [
-		{
-			id: 1,
-			client_id: 1,
-			order_id: 1,
-			type: 'CONFIRMATION' as const,
-			channel: 'EMAIL' as const,
-			status: 'SENT' as const,
-			sent_at: new Date(),
-			created_at: new Date(),
-		},
-	];
+  constructor(
+    @InjectRepository(Notification)
+    private readonly repo: Repository<Notification>,
+  ) {}
 
-	findAll() {
-		return this.notifications;
-	}
+  findAll() {
+    return this.repo.find();
+  }
 
-	findOne(id: number) {
-		const notification = this.notifications.find((item) => item.id === id);
-		if (!notification) {
-			throw new NotFoundException(`Notification #${id} introuvable`);
-		}
-		return notification;
-	}
+  async findOne(id: number) {
+    const notification = await this.repo.findOne({ where: { id } });
+    if (!notification) throw new NotFoundException(`Notification #${id} introuvable`);
+    return notification;
+  }
 
-	create(input: {
-		client_id: number;
-		order_id?: number | null;
-		type: 'CONFIRMATION' | 'READY' | 'CANCELLATION' | 'SUBSTITUTION';
-		channel: 'EMAIL' | 'SMS' | 'PUSH';
-		status?: 'PENDING' | 'SENT' | 'FAILED';
-		sent_at?: Date | null;
-	}) {
-		const created = {
-			id: this.notifications.length + 1,
-			client_id: input.client_id,
-			order_id: input.order_id ?? null,
-			type: input.type,
-			channel: input.channel,
-			status: input.status ?? 'PENDING',
-			sent_at: input.sent_at ?? null,
-			created_at: new Date(),
-		};
-
-		this.notifications.push(created);
-		return created;
-	}
+  async create(input: {
+    client_id: number;
+    order_id?: number | null;
+    type: 'CONFIRMATION' | 'READY' | 'CANCELLATION' | 'SUBSTITUTION';
+    channel: 'EMAIL' | 'SMS' | 'PUSH';
+    status?: 'PENDING' | 'SENT' | 'FAILED';
+    sent_at?: Date | null;
+  }) {
+    const entity = this.repo.create(input as any);
+    return this.repo.save(entity as any);
+  }
 }

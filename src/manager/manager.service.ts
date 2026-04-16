@@ -1,62 +1,42 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Manager } from './manager.entity/manager.entity';
 
 @Injectable()
 export class ManagerService {
-	private readonly managers = [
-		{
-			id: 1,
-			permission_id: 3,
-			store_id: 1,
-			first_name: 'Julie',
-			last_name_initials: 'R.',
-			work_email: 'julie.r@lidl.fr',
-			password: 'hashed-password',
-			work_phone: '0491000201',
-			created_at: new Date(),
-			updated_at: new Date(),
-		},
-	];
+  constructor(
+    @InjectRepository(Manager)
+    private readonly repo: Repository<Manager>,
+  ) {}
 
-	findAll() {
-		return this.managers;
-	}
+  findAll() {
+    return this.repo.find();
+  }
 
-	findOne(id: number) {
-		const manager = this.managers.find((item) => item.id === id);
-		if (!manager) {
-			throw new NotFoundException(`Manager #${id} introuvable`);
-		}
-		return manager;
-	}
+  async findOne(id: number) {
+    const manager = await this.repo.findOne({ where: { id } });
+    if (!manager) throw new NotFoundException(`Manager #${id} introuvable`);
+    return manager;
+  }
 
-	create(input: {
-		permission_id: number;
-		store_id: number;
-		first_name: string;
-		last_name_initials: string;
-		work_email: string;
-		password: string;
-		work_phone: string;
-	}) {
-		if (!input.work_email?.trim()) {
-			throw new BadRequestException('work_email obligatoire');
-		}
+  findByWorkEmail(email: string) {
+    return this.repo.findOne({ where: { work_email: email } });
+  }
 
-		const now = new Date();
-		const created = {
-			id: this.managers.length + 1,
-			permission_id: input.permission_id,
-			store_id: input.store_id,
-			first_name: input.first_name,
-			last_name_initials: input.last_name_initials,
-			work_email: input.work_email,
-			password: input.password,
-			work_phone: input.work_phone,
-			created_at: now,
-			updated_at: now,
-		};
-
-		this.managers.push(created);
-		return created;
-	}
+  async create(input: {
+    permission_id: number;
+    store_id: number;
+    first_name: string;
+    last_name_initials: string;
+    work_email: string;
+    password: string;
+    work_phone: string;
+  }) {
+    if (!input.work_email?.trim()) {
+      throw new BadRequestException('work_email obligatoire');
+    }
+    const entity = this.repo.create(input as any);
+    return this.repo.save(entity as any);
+  }
 }

@@ -6,7 +6,7 @@ export enum ScheduleStatus {
   ON_LEAVE = 'ON_LEAVE',
 }
 
-@Entity('schedules')
+@Entity('schedule')
 export class Schedule {
   @PrimaryGeneratedColumn()
   id!: number;

@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('pickup_slots')
+@Entity('pickup_slot')
 export class PickupSlot {
   @PrimaryGeneratedColumn()
   id!: number;
