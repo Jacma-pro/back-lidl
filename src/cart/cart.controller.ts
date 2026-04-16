@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CartService } from './cart.service';
 
 @ApiTags('Cart')
@@ -23,6 +23,11 @@ export class CartController {
 
 	@Post()
 	@ApiOperation({ summary: 'Créer un panier' })
+	@ApiBody({
+		schema: {
+			example: { client_id: 1, store_id: 1, status: 'ACTIVE' },
+		},
+	})
 	create(@Body() body: { client_id: number; store_id: number; status?: 'ACTIVE' | 'ABANDONED' | 'CONVERTED' }) {
 		return this.cartService.create(body);
 	}
