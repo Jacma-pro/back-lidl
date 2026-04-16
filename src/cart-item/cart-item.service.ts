@@ -21,10 +21,30 @@ export class CartItemService {
   }
 
   async create(input: { cart_id: number; product_id: number; quantity: number; unit_price: number }) {
+    if (!input || input.quantity === undefined || input.unit_price === undefined) {
+      throw new BadRequestException('Champs obligatoires manquants : cart_id, product_id, quantity, unit_price');
+    }
     if (input.quantity <= 0 || input.unit_price < 0) {
       throw new BadRequestException('Quantité ou prix invalide');
     }
     const entity = this.repo.create(input as any);
     return this.repo.save(entity as any);
+  }
+
+  async updateQuantity(id: number, quantity: number) {
+    if (quantity < 0) throw new BadRequestException('La quantité ne peut pas être négative');
+    const item = await this.findOne(id);
+    if (quantity === 0) {
+      await this.repo.remove(item);
+      return { deleted: true, id };
+    }
+    item.quantity = quantity;
+    return this.repo.save(item);
+  }
+
+  async remove(id: number) {
+    const item = await this.findOne(id);
+    await this.repo.remove(item);
+    return { deleted: true, id };
   }
 }
